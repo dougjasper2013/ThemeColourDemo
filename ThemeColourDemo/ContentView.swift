@@ -8,17 +8,35 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.scenePhase) private var scenePhase
+    @EnvironmentObject var settings: Settings
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        VStack(spacing: 20) {
+            Text("Theme: \(settings.themeMode.rawValue.capitalized)")
+            Text("Background: \(settings.backgroundColour.rawValue.capitalized)")
         }
-        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(settings.colourValue().ignoresSafeArea())
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                settings.load()
+            }
+        }
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ContentView()
+                .environmentObject(Settings())
+                .preferredColorScheme(.light)
+                .previewDisplayName("Light Mode")
+            ContentView()
+                .environmentObject(Settings())
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark Mode")
+        }
+    }
 }
